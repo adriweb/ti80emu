@@ -1,0 +1,86 @@
+*** TI-80 Emulator ***
+Version 0 alpha
+By RANDY Ruler of Zexernet (Mr.Z on ticalc.org)
+E-mail: RANDYRulerOfZexernet@gmail.com (as of 2011/10/12)
+
+This program emulates a TI-80 calculator. Do not ask me for a ROM or where to get one. It is possible to dump it off the real calculator, desipte the lack of a link port. I hope to upload a ROM dumper soon, but I will first have to document it.
+
+This emulator is in a very incomplete state. There are likely numerous ways to crash it or get it to behave in a manner inconsistent with a real TI-80. If you notice it producing incorrect behavior, please do tell me (& how you triggered it, of course).
+
+You will probably need to re-compile it to get it to run, unless your environment is very similar to mine (64-bit Gentoo, kernel 2.6.38, nVidia Quadro GPU). It refused to link statically, & I am not going to fix it until other parts are more mature. This requires GTK+ 2.0 & the libti* used by TiLP (at least). Type "make clean" followed by "make" & hope it works/chase dependencies, or else wait for a future version that is more portable.
+
+Command-line arguments:
+Optional: name of ROM file to load (should be 48KB)
+Optional (but must include the previous): name of save state file to load
+
+Features:
+* Known to work with TI-80 ROM version 4.0
+* Virtual link with TiLP & other programs that can use the TiEmu virtual link
+* Can load memory backups from a real TI-80
+* Simulates power switch & removal of batteries (approximately)
+* Debugger with realtime register display & breakpoints
+
+Known inaccuracies:
+* The timing is a bit off. I am not sure why.
+* I am not sure of the correct values for reading 3FFE-3FFF (bytewise). They behave strangely on the real thing.
+* LCD test mode is partially wrong
+* Various unintentional/unknown interactions in the CPU
+
+Planned features (no timeframe, no particular order):
+* Disassembly pane in the debugger
+* Ability to change register values
+* Allow the user to choose which link interface to use
+* Copy & paste of text
+* Saving backups in a format that can be loaded onto a real TI-80
+* Some way to load the ROM more easily
+* Unlimited undo/redo (either a timeline or by individual keypad events)
+* Clickable keypad image
+
+Calculator keys:
+Same: ← ↑ ↓ → π 0-9 A-Z Θ ^ / * - + , ( ) { } " Space . : ? Delete Enter
+\ ON
+| OFF
+Ctrl 2nd
+CapsLock ALPHA
+ShiftTab ALPHA
+! Y=
+@ WINDOW
+# ZOOM
+$ TRACE
+% GRAPH
+` MODE
+Escape QUIT
+~ X,T
+& STAT
+F1 MATH
+F2 FRAC
+F3 PRGM
+F4 VARS
+Backspace CLEAR
+Insert SIN
+Home COS
+PageUp TAN
+[ (
+] )
+; x⅟
+' x²
+< LOG
+> LN
+= Θ
+Tab STO▶
+_ (-)
+
+Emulator keys (only work in calculator window for now):
+Ctrl-O Open state
+Ctrl-S Save state
+F11 Reload (or erase memory if no state was loaded)
+F12 Save state
+Ctrl-Q Quit
+F5 Run
+F6 Break
+Ctrl-Break Break
+F7 Step over
+F8 Step
+F9 Toggle breakpoint
+
+This program is in the public domain. There are no warranties of any sort. See the file UNLICENSE for more information. If you wish to contribute code to it, please include a public domain dedication (see http://unlicense.org/ for details). I will not accept or even look at any code that does not include one.
