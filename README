@@ -1,20 +1,21 @@
 *** TI-80 Emulator ***
 Version 0 alpha
 By RANDY Ruler of Zexernet (Zeroko on ticalc.org) on 2011/10/12
-E-mail: RANDYRulerOfZexernet@gmail.com (as of 2011/10/12)
+Updated 2022/11/15 (confirmed that it works with ROM 3.0 & switched to CC0)
+E-mail: RANDYRulerOfZexernet@gmail.com (please include "TI-80" in subject)
 
 This program emulates a TI-80 calculator. Do not ask me for a ROM or where to get one. It is possible to dump it off the real calculator, desipte the lack of a link port. I hope to upload a ROM dumper soon, but I will first have to document it.
 
 This emulator is in a very incomplete state. There are likely numerous ways to crash it or get it to behave in a manner inconsistent with a real TI-80. If you notice it producing incorrect behavior, please do tell me (& how you triggered it, of course).
 
-You will probably need to re-compile it to get it to run, unless your environment is very similar to mine (64-bit Gentoo, kernel 2.6.38, nVidia Quadro GPU). It refused to link statically, & I am not going to fix it until other parts are more mature. This requires GTK+ 2.0 & the libti* used by TiLP (at least). Type "make clean" followed by "make" & hope it works/chase dependencies, or else wait for a future version that is more portable.
+You will probably need to re-compile it to get it to run, unless your environment is very similar to mine (64-bit Gentoo, kernel 5.15). It refused to link statically, & I am not going to fix it until other parts are more mature. This requires GTK+ 2.0 & the libti* used by TiLP 1.18 (at least). Type "make clean" followed by "make" & hope it works/chase dependencies, or else wait for a future version that is more portable.
 
 Command-line arguments:
-Optional: name of ROM file to load (should be 48KB)
+Optional: name of ROM file to load (should be 48 KiB)
 Optional (but must include the previous): name of save state file to load
 
 Features:
-* Known to work with TI-80 ROM version 4.0
+* Known to work with TI-80 ROM versions 3.0 & 4.0
 * Virtual link with TiLP & other programs that can use the TiEmu virtual link
 * Can load memory backups from a real TI-80
 * Simulates power switch & removal of batteries (approximately)
@@ -83,4 +84,4 @@ F7 Step over
 F8 Step
 F9 Toggle breakpoint
 
-This program is in the public domain. There are no warranties of any sort. See the file UNLICENSE for more information. If you wish to contribute code to it, please include a public domain dedication (see http://unlicense.org/ for details). I will not accept or even look at any code that does not include one.
+This program is provided under the CC0 (Creative Commons Zero) Public Domain dedication (https://creativecommons.org/publicdomain/zero/1.0/). There are no warranties of any sort. All trademarks are property of their respective owners. If you wish to contribute code to it, please include a public domain dedication (see the aforementioned CC0 page for details). I will not accept or even look at any code that does not include one.
