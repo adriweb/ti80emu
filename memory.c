@@ -1,17 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "shared.h"
 
-uint8_t ROM[0xC000];
-uint8_t RAM[0x2000];
+uint8_t ROM[TI80_ROM_SIZE];
+uint8_t RAM[TI80_RAM_SIZE];
 uint8_t key[8][7], onKey = 0;
-struct LCD LCD;
+LCDState LCD;
 
-void loadROM(char *filename) {
-	FILE *f = fopen(filename, "rb");
-	fread(ROM, 1, 0xC000, f);
+int loadROMBuffer(const uint8_t *data, size_t size) {
+	size_t copySize;
+
+	if(data == NULL || size == 0) return 0;
+
+	copySize = size > TI80_ROM_SIZE ? TI80_ROM_SIZE : size;
+	memset(ROM, 0, sizeof(ROM));
+	memcpy(ROM, data, copySize);
+	return 1;
+}
+
+int loadROMFile(const char *filename) {
+	FILE *f;
+	size_t size;
+
+	if(filename == NULL) return 0;
+
+	f = fopen(filename, "rb");
+	if(f == NULL) return 0;
+
+	memset(ROM, 0, sizeof(ROM));
+	size = fread(ROM, 1, sizeof(ROM), f);
 	fclose(f);
+	return size > 0;
 }
 
 #define LCDbits (LCD.word8 ? 8 : 6)
@@ -49,6 +70,7 @@ uint8_t byte(uint16_t a) {
 	else return a >> 8;
 }
 uint16_t word(uint16_t a) {return (byte(a<<1)<<8) | byte((a<<1)+1);}
+uint8_t byteDebug(uint16_t a) {return byte(a);}
 
 void pokeB(uint16_t a, uint8_t x) {
 	if(a == 0x5000 || a == 0x5001 || (a >= 0x5291 && a <= 0x5298) ||

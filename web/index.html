@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TI-80 Emulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <p class="eyebrow">Browser Port</p>
+        <h1>TI-80 Emulator</h1>
+        <div class="credits">
+          <p>Original emulator by <a href="https://www.ticalc.org/archives/files/fileinfo/442/44237.html" target="_blank" rel="noreferrer">Zeroko</a>.</p>
+          <p>Web port by Adriweb + Mr Womp Womp + Codex (for the most part).</p>
+        </div>
+        <div class="hero-status">
+          <span class="hero-status-label">Session Status</span>
+          <span id="status-pill">No ROM loaded</span>
+        </div>
+      </div>
+      <div class="controls-card">
+        <label class="file-button">
+          <span>Load ROM</span>
+          <input id="rom-input" type="file" accept=".bin,.rom,application/octet-stream">
+        </label>
+        <label class="file-button subtle">
+          <span>Load State</span>
+          <input id="state-input" type="file" accept=".bin,.sav,.state,application/octet-stream">
+        </label>
+        <button id="save-state" class="ghost-button" type="button">Download State</button>
+        <div class="meta-actions">
+          <button id="run-toggle" type="button">Run</button>
+          <button id="step-button" type="button">Step</button>
+          <button id="reset-button" type="button">Reset</button>
+          <button id="hard-reset-button" type="button">Hard Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="emulator-layout">
+      <div class="device">
+        <div class="bezel">
+          <div class="branding">
+            <span>Texas Instruments</span>
+            <span>TI-80</span>
+          </div>
+          <div class="screen-stack">
+            <canvas id="screen" width="384" height="288" aria-label="TI-80 screen"></canvas>
+          </div>
+          <div id="keypad" class="keypad" aria-label="TI-80 keypad"></div>
+        </div>
+      </div>
+
+      <aside class="info-panel">
+        <section class="panel-block">
+          <h2>Session</h2>
+          <dl class="status-grid">
+            <div>
+              <dt>Runtime</dt>
+              <dd id="runtime-status">Idle</dd>
+            </div>
+            <div>
+              <dt>PC</dt>
+              <dd id="pc-status">0000</dd>
+            </div>
+            <div>
+              <dt>ROM</dt>
+              <dd id="rom-status">Missing</dd>
+            </div>
+            <div>
+              <dt>State</dt>
+              <dd id="state-status">Unsaved</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="panel-block">
+          <h2>Keyboard</h2>
+          <p>
+            Common host keys are mapped: arrows, digits, `+ - * /`, `Enter`, `Backspace`, `Tab`, `Shift`, and letters.
+          </p>
+        </section>
+
+        <section class="panel-block debugger-panel">
+          <div class="panel-heading">
+            <h2>Debugger</h2>
+            <label class="toggle">
+              <input id="break-on-debug" type="checkbox">
+              <span>Break on debug</span>
+            </label>
+          </div>
+
+          <div class="debug-actions">
+            <button id="step-over-button" type="button">Step Over</button>
+            <button id="toggle-breakpoint-button" type="button">Breakpoint @ PC</button>
+          </div>
+
+          <div class="debug-status-block">
+            <div>
+              <span class="debug-label">Status</span>
+              <code id="debug-status">Waiting for ROM</code>
+            </div>
+            <div>
+              <span class="debug-label">Opcode bytes</span>
+              <code id="opcode-preview">-- -- -- -- -- -- -- --</code>
+            </div>
+          </div>
+
+          <div class="register-grid">
+            <div>
+              <span class="debug-label">A</span>
+              <code id="reg-a">00</code>
+            </div>
+            <div>
+              <span class="debug-label">I</span>
+              <code id="reg-i">000</code>
+            </div>
+            <div>
+              <span class="debug-label">SP</span>
+              <code id="reg-sp">0</code>
+            </div>
+            <div>
+              <span class="debug-label">Breakpoint</span>
+              <code id="breakpoint-status">Off</code>
+            </div>
+          </div>
+
+          <div class="debug-columns">
+            <div>
+              <span class="debug-label">Stack</span>
+              <pre id="stack-view" class="debug-pre"></pre>
+            </div>
+            <div>
+              <span class="debug-label">Registers</span>
+              <pre id="register-view" class="debug-pre register-view"></pre>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    window.Module = {
+      onRuntimeInitialized() {
+        window.dispatchEvent(new Event("ti80-module-ready"));
+      }
+    };
+  </script>
+  <script src="emulator.js"></script>
+  <script src="main.js" type="module"></script>
+</body>
+</html>

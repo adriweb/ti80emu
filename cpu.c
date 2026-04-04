@@ -215,7 +215,7 @@ static uint8_t addWithCarry(int b, uint8_t x, uint8_t y, int *carry, uint16_t op
 }
 int step() {
 	// TODO: CHECK
-	if(onKey && (reg[0x10E>>1] & 0xC) == 0xC) reset();
+	if(onKey && (reg[0x10E>>1] & 0xC) == 0xC) resetForReason("ON key reset");
 	if(reg[0x10F>>1] & 0xC0) return 8;
 	errorStop = 0;
 	int carry = 0, rep = reg[0x110>>1] & 0xF, cycles = 1;

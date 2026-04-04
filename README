@@ -1,3 +1,54 @@
+TI-80 Emulator Web Port
+=======================
+
+This repository now builds a browser-targeted TI-80 emulator using Emscripten.
+The original GTK UI is removed from the active build. The CPU/memory core remains in C and is wrapped by a small wasm bridge,
+with the calculator screen rendered on a `<canvas>` and the keypad implemented in DOM.
+
+Status
+------
+
+This is still an early emulator. The original upstream notes about emulation accuracy still apply. The browser port currently focuses on:
+
+* ROM loading from a user-provided file
+* On-screen keypad input
+* Host keyboard shortcuts for common keys
+* Run, pause, step, reset, and hard reset controls
+* Save-state export/import in the browser
+
+Build
+-----
+
+1. Load the Emscripten environment:
+
+   `source /Users/adriweb/emsdk/emsdk_env.sh`
+
+2. Build the web app:
+
+   `make web`
+
+3. Serve the generated app locally:
+
+   `make serve`
+
+The output is written to `dist/`.
+
+Other targets
+-------------
+
+* `make native` builds a minimal CLI harness in `build/ti80emu-cli`
+* `make clean` removes `build/` and `dist/`
+
+ROMs
+----
+
+The browser build does not ship with a ROM. Users must supply their own TI-80 ROM file through the UI. A 48 KB ROM image is expected.
+
+
+ORIGINAL README:
+================
+
+
 *** TI-80 Emulator ***
 Version 0 alpha
 By RANDY Ruler of Zexernet (Zeroko on ticalc.org) on 2011/10/12

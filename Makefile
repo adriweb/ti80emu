@@ -1,18 +1,53 @@
-CFLAGS=`pkg-config --cflags gtk+-2.0 ticables2` -std=c99 -Wall -DGTK_DISABLE_DEPRECATED -DTIEMU_LINK
-LDFLAGS=`pkg-config --libs gtk+-2.0 ticables2`
+CC ?= cc
+EMCC ?= emcc
 
-all: ti80emu
-ti80emu: main.o cpu.o memory.o calc.o debugger.o
-	gcc -o ti80emu *.o $(LDFLAGS)
-main.o: main.c shared.h
-	gcc -c main.c $(CFLAGS)
-cpu.o: cpu.c shared.h link.h
-	gcc -c cpu.c $(CFLAGS)
-memory.o: memory.c shared.h
-	gcc -c memory.c $(CFLAGS)
-calc.o: calc.c shared.h
-	gcc -c calc.c $(CFLAGS)
-debugger.o: debugger.c shared.h
-	gcc -c debugger.c $(CFLAGS)
+CFLAGS ?= -O2 -std=c99 -Wall -Wextra
+EMFLAGS ?= -O3 -std=c99
+
+CORE_SOURCES = cpu.c memory.c calc.c debugger.c
+CLI_SOURCES = main.c $(CORE_SOURCES)
+WEB_SOURCES = web_emulator.c $(CORE_SOURCES)
+
+BUILD_DIR = build
+DIST_DIR = dist
+
+CLI_BIN = $(BUILD_DIR)/ti80emu-cli
+WEB_JS = $(BUILD_DIR)/emulator.js
+WEB_WASM = $(BUILD_DIR)/emulator.wasm
+
+.PHONY: all native web serve clean dist
+
+all: web
+
+native: $(CLI_BIN)
+
+web: $(DIST_DIR)/index.html
+
+serve: web
+	python3 -m http.server 8000 --directory $(DIST_DIR)
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(DIST_DIR): $(BUILD_DIR)
+	mkdir -p $(DIST_DIR)
+
+$(CLI_BIN): $(CLI_SOURCES) shared.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -o $(CLI_BIN) $(CLI_SOURCES)
+
+$(WEB_JS): $(WEB_SOURCES) shared.h | $(BUILD_DIR)
+	$(EMCC) $(EMFLAGS) $(WEB_SOURCES) -o $(WEB_JS) \
+		-s EXPORTED_FUNCTIONS='["_malloc","_free","_emulator_init","_emulator_load_rom","_emulator_reset","_emulator_hard_reset","_emulator_power_cycle","_emulator_start","_emulator_pause","_emulator_run_frame","_emulator_step_instruction","_emulator_is_running","_emulator_set_key","_emulator_set_on_key","_emulator_render_lcd","_emulator_framebuffer_ptr","_emulator_state_size","_emulator_save_state","_emulator_load_state","_emulator_rom_size_required","_emulator_program_counter","_emulator_registers_ptr","_emulator_stack_ptr","_emulator_debug_status_ptr","_emulator_error_stop","_emulator_break_on_debug","_emulator_set_break_on_debug","_emulator_toggle_breakpoint_pc","_emulator_breakpoint_at_pc","_emulator_step_over","_emulator_debug_byte","_emulator_lcd_on","_emulator_lcd_not_stb","_emulator_lcd_word8","_emulator_lcd_x","_emulator_lcd_y","_emulator_lcd_z","_emulator_reset_count","_emulator_reset_reason_ptr"]' \
+		-s EXPORTED_RUNTIME_METHODS='["HEAPU8","UTF8ToString"]' \
+		-s ALLOW_MEMORY_GROWTH=1 \
+		-s ENVIRONMENT=web,worker,node
+
+$(DIST_DIR)/index.html: web/index.html web/main.js web/style.css $(WEB_JS) $(WEB_WASM) | $(DIST_DIR)
+	cp web/index.html $(DIST_DIR)/index.html
+	cp web/main.js $(DIST_DIR)/main.js
+	cp web/style.css $(DIST_DIR)/style.css
+	cp $(WEB_JS) $(DIST_DIR)/emulator.js
+	cp $(WEB_WASM) $(DIST_DIR)/emulator.wasm
+
 clean:
-	rm *.o ti80emu
+	rm -rf $(BUILD_DIR) $(DIST_DIR)
