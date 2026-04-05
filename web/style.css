@@ -336,7 +336,7 @@ button:disabled {
   position: absolute;
   top: 0;
   left: 3px;
-  max-width: calc(100% - 18px);
+  max-width: calc(100% - 16px);
   color: #d8a23a;
   font-size: 0.5rem;
   font-weight: 700;
