@@ -133,6 +133,7 @@ const runToggle = document.getElementById("run-toggle");
 const stepButton = document.getElementById("step-button");
 const resetButton = document.getElementById("reset-button");
 const hardResetButton = document.getElementById("hard-reset-button");
+const powerCycleButton = document.getElementById("power-cycle-button");
 const saveStateButton = document.getElementById("save-state");
 const keypad = document.getElementById("keypad");
 const statusPill = document.getElementById("status-pill");
@@ -310,6 +311,7 @@ function syncControls() {
   stepButton.disabled = !canInteract;
   resetButton.disabled = !canInteract;
   hardResetButton.disabled = !canInteract;
+  powerCycleButton.disabled = !canInteract;
   saveStateButton.disabled = !canInteract;
   stepOverButton.disabled = !canInteract;
   toggleBreakpointButton.disabled = !canInteract;
@@ -752,6 +754,20 @@ function installEventHandlers() {
     syncControls();
     setStatus("Hard reset applied");
     logSnapshot("Hard reset");
+  });
+
+  powerCycleButton.addEventListener("click", () => {
+    if (!state.ready || !state.romLoaded) return;
+    state.frameCounter = 0;
+    state.lastBlankLogFrame = -120;
+    ModuleRef._emulator_power_cycle();
+    state.running = ModuleRef._emulator_is_running() !== 0;
+    updateProgramCounter();
+    updateDebugger();
+    drawScreen();
+    syncControls();
+    setStatus("Power cycle applied");
+    logSnapshot("Power cycle");
   });
 
   saveStateButton.addEventListener("click", downloadState);
