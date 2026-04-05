@@ -130,6 +130,7 @@ const screen = document.getElementById("screen");
 const ctx = screen.getContext("2d", { alpha: false });
 const romInput = document.getElementById("rom-input");
 const stateInput = document.getElementById("state-input");
+const screenshot = document.getElementById("screenshot");
 const runToggle = document.getElementById("run-toggle");
 const stepButton = document.getElementById("step-button");
 const resetButton = document.getElementById("reset-button");
@@ -754,6 +755,25 @@ function installEventHandlers() {
   runToggle.addEventListener("click", () => {
     setRunning(!state.running);
   });
+
+  var canvas = document.querySelector("#screen");
+  screenshot.addEventListener("click", () => {
+    canvas.toBlob((blob) => {
+      saveBlob(blob, `screencapture-${canvas.width}x${canvas.height}.png`);
+    });
+  });
+
+  const saveBlob = (function() {
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.style.display = 'none';
+    return function saveData(blob, fileName) {
+      const url = window.URL.createObjectURL(blob);
+       a.href = url;
+       a.download = fileName;
+       a.click();
+    };
+  }());
 
   stepButton.addEventListener("click", () => {
     if (!state.ready || !state.romLoaded) return;
