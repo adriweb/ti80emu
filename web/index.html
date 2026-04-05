@@ -10,11 +10,11 @@
   <main class="app-shell">
     <section class="hero-panel">
       <div class="hero-copy">
-        <p class="eyebrow">Browser Port</p>
         <h1>TI-80 Emulator</h1>
         <div class="credits">
-          <p>Original emulator by <a href="https://www.ticalc.org/archives/files/fileinfo/442/44237.html" target="_blank" rel="noreferrer">Zeroko</a>.</p>
-          <p>Web port by Adriweb + Mr Womp Womp + Codex (for the most part).</p>
+          <p><b>Original emulator</b> made <a href="https://www.ticalc.org/archives/files/fileinfo/442/44237.html" target="_blank">by Zeroko</a>.</p>
+          <p><b>Web port</b> by Adriweb + mr womp womp + [mostly] Codex.</p>
+          <p><b>License</b>: Public Domain / CC0. <b>Source code</b>: <a href="https://github.com/adriweb/ti80emu" target="_blank">on GitHub</a>.</p>
         </div>
         <div class="hero-status">
           <span class="hero-status-label">Session Status</span>
@@ -22,16 +22,16 @@
         </div>
       </div>
       <div class="controls-card">
-        <label class="file-button">
-          <span>Load ROM</span>
-          <input id="rom-input" type="file" accept=".bin,.rom,application/octet-stream">
-        </label>
         <div class="state-actions">
+          <label class="file-button">
+            <span>Load ROM</span>
+            <input id="rom-input" type="file" accept=".bin,.rom,application/octet-stream">
+          </label>
           <label class="file-button subtle">
             <span>Load State</span>
             <input id="state-input" type="file" accept=".bin,.sav,.state,application/octet-stream">
           </label>
-          <button id="save-state" class="ghost-button" type="button">Download State</button>
+          <button id="save-state" class="ghost-button" type="button">Save State</button>
         </div>
         <label class="throttle-control" for="throttle-slider">
           <span>Emulation Throttle</span>
@@ -42,10 +42,9 @@
         </label>
         <div class="meta-actions">
           <button id="run-toggle" type="button">Run</button>
-          <button id="step-button" type="button">Step</button>
+          <button id="power-cycle-button" type="button">Power Cycle</button>
           <button id="reset-button" type="button">Reset</button>
           <button id="hard-reset-button" type="button">Hard Reset</button>
-          <button id="power-cycle-button" type="button">Power Cycle</button>
         </div>
       </div>
     </section>
@@ -65,7 +64,7 @@
       </div>
 
       <aside class="info-panel">
-        <section class="panel-block">
+        <section class="panel-block session-panel">
           <h2>Session</h2>
           <dl class="status-grid">
             <div>
@@ -87,13 +86,6 @@
           </dl>
         </section>
 
-        <section class="panel-block">
-          <h2>Keyboard</h2>
-          <p>
-            Common host keys are mapped: arrows, digits, `+ - * /`, `Enter`, `Backspace`, `Tab`, `Shift`, and letters.
-          </p>
-        </section>
-
         <section class="panel-block debugger-panel">
           <div class="panel-heading">
             <h2>Debugger</h2>
@@ -104,6 +96,7 @@
           </div>
 
           <div class="debug-actions">
+            <button id="step-button" type="button">Step</button>
             <button id="step-over-button" type="button">Step Over</button>
             <button id="toggle-breakpoint-button" type="button">Breakpoint @ PC</button>
           </div>
