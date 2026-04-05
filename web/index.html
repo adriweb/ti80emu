@@ -42,10 +42,9 @@
         </label>
         <div class="meta-actions">
           <button id="run-toggle" type="button">Run</button>
-          <button id="step-button" type="button">Step</button>
+          <button id="power-cycle-button" type="button">Power Cycle</button>
           <button id="reset-button" type="button">Reset</button>
           <button id="hard-reset-button" type="button">Hard Reset</button>
-          <button id="power-cycle-button" type="button">Power Cycle</button>
         </div>
       </div>
     </section>
@@ -65,7 +64,7 @@
       </div>
 
       <aside class="info-panel">
-        <section class="panel-block">
+        <section class="panel-block session-panel">
           <h2>Session</h2>
           <dl class="status-grid">
             <div>
@@ -87,13 +86,6 @@
           </dl>
         </section>
 
-        <section class="panel-block">
-          <h2>Keyboard</h2>
-          <p>
-            Common host keys are mapped: arrows, digits, `+ - * /`, `Enter`, `Backspace`, `Tab`, `Shift`, and letters.
-          </p>
-        </section>
-
         <section class="panel-block debugger-panel">
           <div class="panel-heading">
             <h2>Debugger</h2>
@@ -104,6 +96,7 @@
           </div>
 
           <div class="debug-actions">
+            <button id="step-button" type="button">Step</button>
             <button id="step-over-button" type="button">Step Over</button>
             <button id="toggle-breakpoint-button" type="button">Breakpoint @ PC</button>
           </div>

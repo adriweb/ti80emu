@@ -33,6 +33,8 @@ body {
   min-height: 100vh;
   font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
   color: var(--ink);
+  transform: scale(.9);
+  transform-origin: top center;
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 32%),
     linear-gradient(180deg, var(--bg) 0%, #e4dbc8 100%);
@@ -44,7 +46,7 @@ input {
 }
 
 .app-shell {
-  width: min(1120px, calc(100vw - 28px));
+  width: min(1100px, 100vw);
   margin: 0 auto;
   padding: 18px 0 28px;
 }
@@ -159,7 +161,7 @@ input {
 }
 
 .throttle-input output {
-  min-width: 3.5rem;
+  min-width: 2.5rem;
   text-align: right;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -173,7 +175,8 @@ input {
 
 .file-button,
 .ghost-button,
-.meta-actions button {
+.meta-actions button,
+.debug-actions button {
   border: 0;
   border-radius: 16px;
   cursor: pointer;
@@ -188,7 +191,7 @@ input {
   align-items: center;
   justify-content: center;
   min-height: 46px;
-  padding: 0 16px;
+  padding: 0 12px;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
   color: #f6f4ee;
   box-shadow: 0 12px 22px rgba(39, 99, 93, 0.22);
@@ -215,7 +218,7 @@ input {
 }
 
 .meta-actions button {
-  min-height: 44px;
+  min-height: 40px;
   padding: 0 12px;
   background: var(--button-meta);
   color: var(--ink);
@@ -225,6 +228,7 @@ input {
 .file-button:hover,
 .ghost-button:hover,
 .meta-actions button:hover,
+.debug-actions button:hover,
 .key:hover {
   transform: translateY(-1px);
   filter: brightness(1.03);
@@ -455,6 +459,10 @@ button:disabled {
   border: 1px solid rgba(31, 36, 29, 0.08);
 }
 
+.session-panel {
+  grid-column: 1 / -1;
+}
+
 .debugger-panel {
   grid-column: 1 / -1;
 }
@@ -494,7 +502,7 @@ button:disabled {
 
 .debug-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 10px;
 }
@@ -506,6 +514,13 @@ button:disabled {
   background: linear-gradient(180deg, #efe6d4 0%, #c7b99c 100%);
   color: var(--ink);
   box-shadow: 0 8px 16px rgba(86, 78, 63, 0.12);
+}
+
+.debug-actions button:active {
+  transform: translateY(1px) scale(0.985);
+  box-shadow:
+    inset 0 2px 10px rgba(0, 0, 0, 0.16),
+    0 4px 8px rgba(86, 78, 63, 0.1);
 }
 
 .debug-status-block,
@@ -560,17 +575,19 @@ button:disabled {
 }
 
 .debug-columns {
-  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  grid-template-columns: minmax(100px, 200px) minmax(340px, 1fr);
 }
 
 .register-view {
   max-height: 360px;
+  column-count: 2;
+  column-gap: 16px;
 }
 
 .status-grid {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -593,7 +610,7 @@ button:disabled {
   font-weight: 600;
 }
 
-@media (max-width: 1060px) {
+@media (max-width: 900px) {
   .hero-panel,
   .emulator-layout {
     grid-template-columns: 1fr;
@@ -613,11 +630,15 @@ button:disabled {
   .debug-columns {
     grid-template-columns: 1fr;
   }
+
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
   .app-shell {
-    width: min(1120px, calc(100vw - 16px));
+    width: min(1100px, 100vw);
     padding-top: 12px;
   }
 
