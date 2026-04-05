@@ -26,11 +26,13 @@
           <span>Load ROM</span>
           <input id="rom-input" type="file" accept=".bin,.rom,application/octet-stream">
         </label>
-        <label class="file-button subtle">
-          <span>Load State</span>
-          <input id="state-input" type="file" accept=".bin,.sav,.state,application/octet-stream">
-        </label>
-        <button id="save-state" class="ghost-button" type="button">Download State</button>
+        <div class="state-actions">
+          <label class="file-button subtle">
+            <span>Load State</span>
+            <input id="state-input" type="file" accept=".bin,.sav,.state,application/octet-stream">
+          </label>
+          <button id="save-state" class="ghost-button" type="button">Download State</button>
+        </div>
         <label class="throttle-control" for="throttle-slider">
           <span>Emulation Throttle</span>
           <div class="throttle-input">
