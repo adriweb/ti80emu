@@ -298,10 +298,17 @@ int step() {
 			M_JUMP_CALL;
 		}
 		else if(op < 0xB000) {
-			// TODO: FIX REPETITION
 			int test = 1;
-			do test &= (reg4r(WYX) >> B & 1) == (op >> 11 & 1);
-			while(repeat && repeat--);
+			int probeRepeat = repeat;
+			int probeOffset = offset;
+			do {
+				uint16_t probeAddress = (op & 0x20F) == 0x20F
+					? add4(I, (uint8_t)probeOffset)
+					: add4((op >> 1 & 0x100) | YX, (uint8_t)probeOffset);
+				test &= (reg4r(probeAddress) >> B & 1) == (op >> 11 & 1);
+				probeOffset++;
+			} while(probeRepeat-- > 0);
+			repeat = 0;
 			if(test) C_JUMP_CALL;
 		}
 		else if(op < 0xC000) {COND(regSr(I), regSr(JYX)); if(rep) Iadd(2 - S);}

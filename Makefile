@@ -7,6 +7,7 @@ EMFLAGS ?= -O3 -std=c99
 CORE_SOURCES = cpu.c memory.c calc.c debugger.c
 CLI_SOURCES = main.c $(CORE_SOURCES)
 WEB_SOURCES = web_emulator.c $(CORE_SOURCES)
+BITREPEAT_TEST_SOURCES = tests/bitrepeat_validation.c $(CORE_SOURCES)
 
 BUILD_DIR = build
 DIST_DIR = dist
@@ -14,14 +15,18 @@ DIST_DIR = dist
 CLI_BIN = $(BUILD_DIR)/ti80emu-cli
 WEB_JS = $(BUILD_DIR)/emulator.js
 WEB_WASM = $(BUILD_DIR)/emulator.wasm
+BITREPEAT_TEST_BIN = $(BUILD_DIR)/bitrepeat-validation
 
-.PHONY: all native web serve clean dist
+.PHONY: all native web serve clean dist test-bitrepeat
 
 all: web
 
 native: $(CLI_BIN)
 
 web: $(DIST_DIR)/index.html
+
+test-bitrepeat: $(BITREPEAT_TEST_BIN)
+	./$(BITREPEAT_TEST_BIN)
 
 serve: web
 	python3 -m http.server 8000 --directory $(DIST_DIR)
@@ -34,6 +39,9 @@ $(DIST_DIR): $(BUILD_DIR)
 
 $(CLI_BIN): $(CLI_SOURCES) shared.h | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -o $(CLI_BIN) $(CLI_SOURCES)
+
+$(BITREPEAT_TEST_BIN): $(BITREPEAT_TEST_SOURCES) shared.h | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I. -o $(BITREPEAT_TEST_BIN) $(BITREPEAT_TEST_SOURCES)
 
 $(WEB_JS): $(WEB_SOURCES) shared.h | $(BUILD_DIR)
 	$(EMCC) $(EMFLAGS) $(WEB_SOURCES) -o $(WEB_JS) \
