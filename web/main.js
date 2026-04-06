@@ -133,6 +133,7 @@ const ctx = screen.getContext("2d", { alpha: false });
 const romInput = document.getElementById("rom-input");
 const stateInput = document.getElementById("state-input");
 const screenshot = document.getElementById("screenshot");
+const screenRecordButton = document.getElementById("screen-record-button");
 const runToggle = document.getElementById("run-toggle");
 const stepButton = document.getElementById("step-button");
 const resetButton = document.getElementById("reset-button");
@@ -194,6 +195,10 @@ let ModuleRef = null;
 let animationFrame = 0;
 let onPulseTimer = 0;
 let powerCycleOnTimer = 0;
+let screenRecorder = null;
+let screenRecorderChunks = [];
+let screenRecorderStream = null;
+let screenRecorderMimeType = "";
 let throttlePercent = Number(throttleSlider?.value ?? 100);
 let emulationBudgetMs = 0;
 let lastAnimationTimestamp = 0;
@@ -238,6 +243,54 @@ function pulseOnKey(durationMs = 80, delayMs = 0) {
       logSnapshot("Automatic ON release");
     }, durationMs);
   }, delayMs);
+}
+
+function supportsScreenRecording() {
+  return (typeof screen.captureStream === "function" || typeof screen.mozCaptureStream === "function")
+    && typeof MediaRecorder !== "undefined";
+}
+
+function preferredRecordingMimeType() {
+  if (typeof MediaRecorder === "undefined" || typeof MediaRecorder.isTypeSupported !== "function") return "";
+
+  const candidates = [
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4;codecs=avc1",
+    "video/mp4",
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm"
+  ];
+
+  for (const mimeType of candidates) {
+    if (MediaRecorder.isTypeSupported(mimeType)) return mimeType;
+  }
+
+  return "";
+}
+
+function recordingFileName() {
+  const extension = screenRecorderMimeType.includes("mp4") ? "mp4" : "webm";
+  return `screenrecording-${screen.width}x${screen.height}-${Date.now()}.${extension}`;
+}
+
+function captureCanvasStream() {
+  const capture = screen.captureStream || screen.mozCaptureStream;
+  if (typeof capture !== "function") return null;
+
+  try {
+    return capture.call(screen);
+  } catch (error) {
+    console.warn("[ti80] canvas.captureStream() without fps failed", error);
+  }
+
+  try {
+    return capture.call(screen, 60);
+  } catch (error) {
+    console.warn("[ti80] canvas.captureStream(60) failed", error);
+  }
+
+  return null;
 }
 
 function queuePowerCycleOnPulse(previousResetCount, attemptsRemaining = 80) {
@@ -303,6 +356,140 @@ function coreSnapshot() {
 function logSnapshot(reason) {
   if (!state.ready) return;
   console.info("[ti80]", reason, coreSnapshot());
+}
+
+function saveBlob(blob, fileName) {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  window.setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+    link.remove();
+  }, 1000);
+}
+
+function finishScreenRecording() {
+  if (!screenRecorderChunks.length) {
+    screenRecorderChunks = [];
+    screenRecorderMimeType = "";
+    syncControls();
+    setStatus(state.running ? "Emulation running" : "Emulation paused");
+    return;
+  }
+
+  const mimeType = screenRecorderMimeType || "video/webm";
+  const blob = new Blob(screenRecorderChunks, { type: mimeType });
+  screenRecorderChunks = [];
+  saveBlob(blob, recordingFileName());
+  screenRecorderMimeType = "";
+  syncControls();
+  setStatus("Screen recording saved");
+}
+
+function stopScreenRecording() {
+  if (!screenRecorder) return;
+  if (screenRecorder.state === "inactive") return;
+
+  try {
+    if (screenRecorder.state === "recording") screenRecorder.requestData();
+  } catch (error) {
+    console.warn("[ti80] MediaRecorder.requestData() failed", error);
+  }
+
+  try {
+    screenRecorder.stop();
+    setStatus("Stopping screen recording");
+  } catch (error) {
+    console.error("[ti80] MediaRecorder.stop() failed", error);
+    setStatus("Unable to stop screen recording");
+  }
+}
+
+function startScreenRecording() {
+  if (!supportsScreenRecording()) {
+    setStatus("Screen recording is not supported in this browser");
+    return;
+  }
+  if (!state.ready || !state.romLoaded || screenRecorder) return;
+
+  const mimeType = preferredRecordingMimeType();
+  const stream = captureCanvasStream();
+
+  if (!stream) {
+    setStatus("Unable to capture the calculator screen");
+    return;
+  }
+
+  screenRecorderChunks = [];
+  screenRecorderStream = stream;
+  screenRecorderMimeType = mimeType;
+
+  try {
+    screenRecorder = mimeType
+      ? new MediaRecorder(screenRecorderStream, { mimeType })
+      : new MediaRecorder(screenRecorderStream);
+  } catch (error) {
+    console.warn("[ti80] MediaRecorder with preferred mime type failed", error);
+    screenRecorderMimeType = "";
+    try {
+      screenRecorder = new MediaRecorder(screenRecorderStream);
+      screenRecorderMimeType = screenRecorder.mimeType || "";
+    } catch (fallbackError) {
+      console.error("[ti80] MediaRecorder construction failed", fallbackError);
+      screenRecorderStream.getTracks().forEach((track) => track.stop());
+      screenRecorderStream = null;
+      setStatus("Unable to start screen recording");
+      return;
+    }
+  }
+
+  screenRecorderMimeType = screenRecorder.mimeType || screenRecorderMimeType || "";
+  screenRecorder.addEventListener("dataavailable", (event) => {
+    if (event.data && event.data.size > 0) screenRecorderChunks.push(event.data);
+  });
+  screenRecorder.addEventListener("start", () => {
+    syncControls();
+    setStatus("Recording screen video");
+  });
+  screenRecorder.addEventListener("stop", () => {
+    if (screenRecorderStream) {
+      screenRecorderStream.getTracks().forEach((track) => track.stop());
+      screenRecorderStream = null;
+    }
+    const completedRecorder = screenRecorder;
+    if (completedRecorder?.mimeType) screenRecorderMimeType = completedRecorder.mimeType;
+    screenRecorder = null;
+    finishScreenRecording();
+  });
+  screenRecorder.addEventListener("error", (event) => {
+    console.error("[ti80] MediaRecorder error", event.error ?? event);
+    setStatus("Screen recording failed");
+  });
+
+  try {
+    screenRecorder.start(250);
+  } catch (error) {
+    console.error("[ti80] MediaRecorder.start() failed", error);
+    if (screenRecorderStream) {
+      screenRecorderStream.getTracks().forEach((track) => track.stop());
+      screenRecorderStream = null;
+    }
+    screenRecorder = null;
+    screenRecorderMimeType = "";
+    setStatus("Unable to start screen recording");
+    return;
+  }
+
+  syncControls();
+}
+
+function toggleScreenRecording() {
+  if (screenRecorder) stopScreenRecording();
+  else startScreenRecording();
 }
 
 function reg4At(index) {
@@ -607,6 +794,7 @@ function updateDebugger() {
 function syncControls() {
   const canInteract = state.ready && state.romLoaded;
   runToggle.textContent = state.running ? "Pause" : "Run";
+  screenRecordButton.textContent = screenRecorder ? "Stop Recording" : "Record Video";
   runToggle.disabled = !canInteract;
   stepButton.disabled = !canInteract;
   resetButton.disabled = !canInteract;
@@ -615,6 +803,7 @@ function syncControls() {
   saveStateButton.disabled = !canInteract;
   stepOverButton.disabled = !canInteract;
   toggleBreakpointButton.disabled = !canInteract;
+  screenRecordButton.disabled = (!canInteract && !screenRecorder) || !supportsScreenRecording();
 }
 
 function updateProgramCounter() {
@@ -1252,24 +1441,12 @@ function installEventHandlers() {
     setRunning(!state.running);
   });
 
-  var canvas = document.querySelector("#screen");
   screenshot.addEventListener("click", () => {
-    canvas.toBlob((blob) => {
-      saveBlob(blob, `screencapture-${canvas.width}x${canvas.height}.png`);
+    screen.toBlob((blob) => {
+      saveBlob(blob, `screencapture-${screen.width}x${screen.height}.png`);
     });
   });
-
-  const saveBlob = (function() {
-    const a = document.createElement('a');
-    document.body.appendChild(a);
-    a.style.display = 'none';
-    return function saveData(blob, fileName) {
-      const url = window.URL.createObjectURL(blob);
-       a.href = url;
-       a.download = fileName;
-       a.click();
-    };
-  }());
+  screenRecordButton.addEventListener("click", toggleScreenRecording);
 
   stepButton.addEventListener("click", () => {
     if (!state.ready || !state.romLoaded) return;

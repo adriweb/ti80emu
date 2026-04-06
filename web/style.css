@@ -208,8 +208,17 @@ input {
 
 .meta-actions {
   display: grid;
+  gap: 10px;
+}
+
+.meta-actions-row {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.meta-actions-row-triple {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .meta-actions button {
