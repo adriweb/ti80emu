@@ -308,7 +308,7 @@ function lcdPalette() {
 
   const contrast = ModuleRef._emulator_lcd_contrast() - (4 * ModuleRef._emulator_lcd_opa2());
   const testMode = ModuleRef._emulator_lcd_test();
-  let low = 0xbd - (3 * contrast);
+  let low = 0x82 - (3 * contrast);
   let high = 0x13f - (contrast < 0x10 ? 0x40 : (contrast << 2));
 
   // Match the original GTK renderer's LCD test mode handling.
