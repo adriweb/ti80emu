@@ -241,7 +241,7 @@ button:disabled {
 }
 
 .emulator-layout {
-  grid-template-columns: 352px minmax(0, 1fr);
+  grid-template-columns: 354px minmax(0, 1fr);
   align-items: start;
   gap: 22px;
 }
@@ -249,7 +249,7 @@ button:disabled {
 .device {
   position: relative;
   justify-self: center;
-  width: min(100%, 352px);
+  width: min(100%, 354px);
 }
 
 .bezel {
@@ -309,7 +309,7 @@ button:disabled {
   width: 100%;
   max-width: 100%;
   aspect-ratio: 4 / 3;
-  padding: 16px 20px;
+  padding: 13.05px 17.4px;
   border-radius: 0;
   background: #d4cab9;
   image-rendering: pixelated;
@@ -703,7 +703,7 @@ button:disabled {
   }
 
   .device {
-    width: min(100%, 352px);
+    width: min(100%, 354px);
   }
 
   .info-panel {
