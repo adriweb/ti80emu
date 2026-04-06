@@ -42,10 +42,11 @@ $(WEB_JS): $(WEB_SOURCES) shared.h | $(BUILD_DIR)
 		-s ALLOW_MEMORY_GROWTH=1 \
 		-s ENVIRONMENT=web,worker,node
 
-$(DIST_DIR)/index.html: web/index.html web/main.js web/style.css $(WEB_JS) $(WEB_WASM) | $(DIST_DIR)
+$(DIST_DIR)/index.html: web/index.html web/main.js web/style.css web/TI_logo.png $(WEB_JS) $(WEB_WASM) | $(DIST_DIR)
 	cp web/index.html $(DIST_DIR)/index.html
 	cp web/main.js $(DIST_DIR)/main.js
 	cp web/style.css $(DIST_DIR)/style.css
+	cp web/TI_logo.png $(DIST_DIR)/TI_logo.png
 	cp $(WEB_JS) $(DIST_DIR)/emulator.js
 	cp $(WEB_WASM) $(DIST_DIR)/emulator.wasm
 
