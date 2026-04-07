@@ -12,14 +12,16 @@
   --screen-light: #d8e0b7;
   --device-top: #858c7b;
   --device-bottom: #4f534a;
-  --button: linear-gradient(180deg, #858881 0%, #585a55 100%);
+  --button: linear-gradient(0deg, #090909 0%, #3b3d37 100%);
   --button-text: #f7f4eb;
-  --button-fn: linear-gradient(180deg, #5f6d6b 0%, #34403e 100%);
-  --button-accent: linear-gradient(180deg, #d1b95f 0%, #a48725 100%);
-  --button-nav: linear-gradient(180deg, #4d73ba 0%, #244785 100%);
-  --button-light: linear-gradient(180deg, #d8d5d0 0%, #9f9992 100%);
-  --button-power: linear-gradient(180deg, #676b67 0%, #373a38 100%);
+  --button-accent: linear-gradient(180deg, #e7cc68 0%, #ffcb1c 100%);
+  --button-nav: linear-gradient(180deg, #0f90fc 0%, #0f4d8a 100%);
+  --button-light: linear-gradient(180deg, #d6d6d6 0%, #8b8884 100%);
   --button-meta: linear-gradient(180deg, #e4ded2 0%, #bbb19f 100%);
+  --button-run: linear-gradient(180deg, #6fae8f 0%, #2f7150 100%);
+  --button-run-shadow: rgba(47, 113, 80, 0.24);
+  --button-pause: linear-gradient(180deg, #d7a25d 0%, #9a5c1d 100%);
+  --button-pause-shadow: rgba(154, 92, 29, 0.24);
   --border: rgba(28, 32, 24, 0.14);
   --shadow: 0 24px 60px rgba(50, 47, 34, 0.18);
 }
@@ -259,6 +261,7 @@ button:disabled {
   position: relative;
   justify-self: center;
   width: min(100%, 354px);
+  margin-left: 8px;
 }
 
 .bezel {
@@ -266,31 +269,33 @@ button:disabled {
   grid-template-rows: auto auto 1fr;
   width: 100%;
   min-height: 0;
-  aspect-ratio: 0.512;
-  padding: 16px 16px 18px;
-  border-radius: 10px;
+  aspect-ratio: 0.46;
+  padding: 5px 10px;
+  border-radius: 10px 10px 50px 50px;
   background:
     radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.16), transparent 24%),
-    linear-gradient(180deg, #6f746b 0%, #686d64 14%, #575b54 60%, #454842 100%);
+    linear-gradient(180deg, #50524e 0%, #4b4c4a 14%, #4b4c4a 60%, #2d2d2d 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     inset 0 -18px 38px rgba(0, 0, 0, 0.34),
     0 22px 44px rgba(40, 37, 31, 0.28);
+  border: 7px #2c2e2b solid;
+  outline: 3px black solid;
 }
 
 .branding {
   display: flex;
   justify-content: space-between;
-  margin: 0 6px 6px;
+  margin: 2px 6px 2px;
   color: rgba(255, 252, 246, 0.88);
-  font-size: 1.1rem;
+  font-size: .9rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .largeBranding {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
 }
 
 #tiLogoFont {
@@ -306,8 +311,8 @@ button:disabled {
 }
 
 .screen-stack {
-  margin: 0 auto;
-  padding: 12px 35px;
+  margin: 0 6px;
+  padding: 8px 41px;
   border-radius: 3px;
   background:
     linear-gradient(180deg, #dbd5c6 0%, #cfc7b7 22%, #bbae99 100%);
@@ -334,8 +339,8 @@ button:disabled {
   width: 100%;
   max-width: 100%;
   aspect-ratio: 4 / 3;
-  padding: 13.05px 17.4px;
-  border-radius: 0;
+  padding: 13px 17px;
+  border-radius: 2px;
   background: #d4cab9;
   image-rendering: pixelated;
   box-shadow:
@@ -351,35 +356,45 @@ button:disabled {
   grid-template-columns: repeat(15, minmax(0, 1fr));
   grid-auto-rows: minmax(38px, auto);
   align-content: start;
-  gap: 2px 4px;
+  gap: 5px 12px;
 }
 
 .key-slot {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 38px;
+  min-height: 45px;
   padding-top: 8px;
+  justify-content: center;
+}
+
+.key-slot:has(.key.power) {
+  border-bottom: 3px black solid;
+  border-radius: 3px;
 }
 
 .key {
   appearance: none;
   border: 0;
   display: flex;
-  align-items: flex-end;
   justify-content: center;
+  align-items: baseline;
   width: 95%;
+  min-height: 28px;
   border-radius: 4px;
   padding: 5px 4px 4px;
+  margin-top: 4px;
+  margin-bottom: 3px;
   background: var(--button);
   color: var(--button-text);
   letter-spacing: 0.03em;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 6px 10px rgba(20, 21, 19, 0.24);
+    -2px -1px 5px 2px #00000050;
+  outline: 1px #000000e6 solid;
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
@@ -394,15 +409,13 @@ button:disabled {
   position: absolute;
   top: 0;
   left: 3px;
-  max-width: calc(100% - 16px);
   color: #d8a23a;
-  font-size: 0.5rem;
+  font-size: 0.65rem;
+  font-family: sans-serif;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: left;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .key-alpha {
@@ -411,7 +424,7 @@ button:disabled {
   right: 4px;
   max-width: 36%;
   color: rgba(245, 242, 235, 0.92);
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: right;
@@ -425,11 +438,27 @@ button:disabled {
 }
 
 .key.function {
-  background: var(--button-fn);
-  min-height: 28px;
-  font-size: 0.65rem;
-  vertical-align: top;
-  padding: 0 0 7px 0;
+  min-height: 23px;
+  font-size: 0.7rem;
+}
+
+/* WINDOW */
+.key.function[data-key-id='1'] {
+  letter-spacing: -1px;
+}
+
+/* left and right arrows */
+button.key.nav[data-key-id='12'], button.key.nav[data-key-id='14'] {
+  position: absolute;
+  bottom: calc(50% - 5px);
+  height: 44px;
+  width: 18px;
+  align-items: center;
+}
+/* up and down arrows */
+button.key.nav[data-key-id='8'], button.key.nav[data-key-id='13'] {
+  width: 38px;
+  position: absolute;
 }
 
 .key.function .key-alpha {
@@ -446,16 +475,25 @@ button:disabled {
 
 .key.light {
   background: var(--button-light);
-  color: #1f241d;
+  color: #faffff;
 }
 
-.key.power {
-  background: var(--button-power);
+.key.nav .key-label {
+  font-size: 0.9rem;
 }
-
-.key.nav .key-label,
 .key.power .key-label {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
+}
+
+/* ENTER */
+.key.nav[data-key-id='49'] {
+  min-height: 35px;
+  position: absolute;
+  top: 9px;
+  font-weight: 500;
+}
+.key.nav[data-key-id='49'] > span {
+  font-size: 15px !important;
 }
 
 .key.active {
@@ -531,6 +569,20 @@ button:disabled {
   background: linear-gradient(180deg, #efe6d4 0%, #c7b99c 100%);
   color: var(--ink);
   box-shadow: 0 8px 16px rgba(86, 78, 63, 0.12);
+}
+
+#run-toggle {
+  color: #f7f4eb;
+}
+
+#run-toggle.is-paused {
+  background: var(--button-run);
+  box-shadow: 0 8px 16px var(--button-run-shadow);
+}
+
+#run-toggle.is-running {
+  background: var(--button-pause);
+  box-shadow: 0 8px 16px var(--button-pause-shadow);
 }
 
 .debug-actions button:active,
@@ -780,11 +832,6 @@ button:disabled {
     gap: 2px 4px;
   }
 
-  .key-slot {
-    min-height: 36px;
-    padding-top: 7px;
-  }
-
   .key {
     min-height: 30px;
     padding: 7px 4px 5px;
@@ -803,7 +850,7 @@ button:disabled {
 
   .key.nav .key-label,
   .key.power .key-label {
-    font-size: 0.76rem;
+    font-size: 0.8rem;
   }
 
   .register-grid {

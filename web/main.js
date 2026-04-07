@@ -53,16 +53,16 @@ const KEY_LAYOUT = [
   { label: "4", secondary: "L4", alpha: "T", kind: "light", row: 5, col: 4, gridRow: 8, gridColumn: "4 / span 3" },
   { label: "5", secondary: "L5", alpha: "U", kind: "light", row: 5, col: 3, gridRow: 8, gridColumn: "7 / span 3" },
   { label: "6", secondary: "L6", alpha: "V", kind: "light", row: 5, col: 2, gridRow: 8, gridColumn: "10 / span 3" },
-  { label: "-", alpha: "W", row: 5, col: 1, kind: "nav", gridRow: 8, gridColumn: "13 / span 3" },
+  { label: "—", alpha: "W", row: 5, col: 1, kind: "nav", gridRow: 8, gridColumn: "13 / span 3" },
 
   { label: "STO▶\uFE0E", alpha: "X", row: 6, col: 5, gridRow: 9, gridColumn: "1 / span 3" },
   { label: "1", secondary: "L1", alpha: "Y", kind: "light", row: 6, col: 4, gridRow: 9, gridColumn: "4 / span 3" },
   { label: "2", secondary: "L2", alpha: "Z", kind: "light", row: 6, col: 3, gridRow: 9, gridColumn: "7 / span 3" },
   { label: "3", secondary: "L3", alpha: "θ", kind: "light", row: 6, col: 2, gridRow: 9, gridColumn: "10 / span 3" },
-  { label: "+", secondary: "UNIT", alpha: "\"", row: 6, col: 1, kind: "nav", gridRow: 9, gridColumn: "13 / span 3" },
+  { label: "+", secondary: "UNIT␣", alpha: "\"", row: 6, col: 1, kind: "nav", gridRow: 9, gridColumn: "13 / span 3" },
 
-  { label: "ON", secondary: "OFF", alpha: "␣", on: true, kind: "power", gridRow: 10, gridColumn: "1 / span 3" },
-  { label: "0", secondary: "MEM", row: 7, col: 4, kind: "light", gridRow: 10, gridColumn: "4 / span 3" },
+  { label: "ON", secondary: "OFF", on: true, kind: "power", gridRow: 10, gridColumn: "1 / span 3" },
+  { label: "0", secondary: "MEM", alpha: "␣", row: 7, col: 4, kind: "light", gridRow: 10, gridColumn: "4 / span 3" },
   { label: ".", secondary: ":", row: 7, col: 3, kind: "light", gridRow: 10, gridColumn: "7 / span 3" },
   { label: "(-)", secondary: "ANS", alpha: "?", row: 7, col: 2, kind: "light", gridRow: 10, gridColumn: "10 / span 3" },
   { label: "ENTER", secondary: "ENTRY", row: 7, col: 1, kind: "nav", gridRow: 10, gridColumn: "13 / span 3" }
@@ -794,6 +794,8 @@ function updateDebugger() {
 function syncControls() {
   const canInteract = state.ready && state.romLoaded;
   runToggle.textContent = state.running ? "Pause" : "Run";
+  runToggle.classList.toggle("is-running", state.running);
+  runToggle.classList.toggle("is-paused", !state.running);
   screenRecordButton.textContent = screenRecorder ? "Stop Recording" : "Record Video";
   runToggle.disabled = !canInteract;
   stepButton.disabled = !canInteract;
