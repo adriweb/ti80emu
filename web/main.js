@@ -573,7 +573,7 @@ function classifyInstruction(mnemonic) {
   if (mnemonic.startsWith("XOR") || mnemonic.startsWith("OR") || mnemonic.startsWith("NOT")) return "logic";
   if (mnemonic === "TOGGLE" || mnemonic === "CLEAR" || mnemonic === "SET") return "bit";
   if (mnemonic.startsWith("XCHG")) return "exchange";
-  if (mnemonic === "MICRO" || mnemonic === "NOP?") return "micro";
+  if (mnemonic === "SCANKEYS" || mnemonic === "SHR") return "micro";
   return "default";
 }
 
@@ -636,6 +636,23 @@ function bitAddress(address, bit) {
   return `${formatRegAddress(address)}.${bit}`;
 }
 
+function tokensForInstructionText(text) {
+  const separatorIndex = text.indexOf(" ");
+  if (separatorIndex === -1) return instructionTokens({ mnemonic: text });
+  return instructionTokens({
+    mnemonic: text.slice(0, separatorIndex),
+    operands: text.slice(separatorIndex + 1)
+  });
+}
+
+function tokensForInstructionSequence(parts) {
+  return parts.flatMap((part, index) => {
+    const tokens = tokensForInstructionText(part);
+    if (index === 0) return tokens;
+    return [{ role: "separator", text: "; " }, ...tokens];
+  });
+}
+
 function decodeInstruction(pc) {
   const op = debugWordAt(pc);
   const nextWord = debugWordAt((pc + 1) & 0xffff);
@@ -684,12 +701,11 @@ function decodeInstruction(pc) {
     if (op & 0x0040) parts.push("RET");
     if (op & 0x0080) parts.push("JUMP (104)");
     if (!parts.length) {
-      mnemonic = "NOP?";
+      mnemonic = "NOP";
       asmTokens = instructionTokens({ mnemonic });
-    }
-    else {
-      mnemonic = "MICRO";
-      asmTokens = instructionTokens({ mnemonic, operands: parts.join(" | ") });
+    } else {
+      mnemonic = parts[0].split(" ")[0];
+      asmTokens = tokensForInstructionSequence(parts);
     }
   } else if (op < 0x0400) {
     mnemonic = `LOAD${size}`;
