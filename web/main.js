@@ -21,9 +21,9 @@ const KEY_LAYOUT = [
   { label: "ALPHA", secondary: "A-LOCK", row: 0, col: 5, kind: "small", gridRow: 3, gridColumn: "1 / span 3" },
   { label: "X,T", row: 0, col: 4, kind: "small", gridRow: 3, gridColumn: "4 / span 3" },
   { label: "STAT", secondary: "LIST", row: 0, col: 3, kind: "small", gridRow: 3, gridColumn: "7 / span 3" },
-  { label: "◀", ariaLabel: "Left", row: 6, col: 0, kind: "nav", gridRow: 3, gridColumn: "10 / span 2" },
+  { label: "◀\uFE0E", ariaLabel: "Left", row: 6, col: 0, kind: "nav", gridRow: 3, gridColumn: "10 / span 2" },
   { label: "▼", ariaLabel: "Down", row: 7, col: 0, kind: "nav", gridRow: 3, gridColumn: "12 / span 2" },
-  { label: "▶", ariaLabel: "Right", row: 5, col: 0, kind: "nav", gridRow: 3, gridColumn: "14 / span 2" },
+  { label: "▶\uFE0E", ariaLabel: "Right", row: 5, col: 0, kind: "nav", gridRow: 3, gridColumn: "14 / span 2" },
 
   { label: "MATH", secondary: "TEST", alpha: "A", row: 1, col: 5, kind: "small", gridRow: 4, gridColumn: "1 / span 3" },
   { label: "FRAC", secondary: "ANGLE", alpha: "B", row: 1, col: 4, kind: "small", gridRow: 4, gridColumn: "4 / span 3" },
@@ -55,7 +55,7 @@ const KEY_LAYOUT = [
   { label: "6", secondary: "L6", alpha: "V", kind: "light", row: 5, col: 2, gridRow: 8, gridColumn: "10 / span 3" },
   { label: "-", alpha: "W", row: 5, col: 1, kind: "nav", gridRow: 8, gridColumn: "13 / span 3" },
 
-  { label: "STO▶", alpha: "X", row: 6, col: 5, gridRow: 9, gridColumn: "1 / span 3" },
+  { label: "STO▶\uFE0E", alpha: "X", row: 6, col: 5, gridRow: 9, gridColumn: "1 / span 3" },
   { label: "1", secondary: "L1", alpha: "Y", kind: "light", row: 6, col: 4, gridRow: 9, gridColumn: "4 / span 3" },
   { label: "2", secondary: "L2", alpha: "Z", kind: "light", row: 6, col: 3, gridRow: 9, gridColumn: "7 / span 3" },
   { label: "3", secondary: "L3", alpha: "θ", kind: "light", row: 6, col: 2, gridRow: 9, gridColumn: "10 / span 3" },
