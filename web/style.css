@@ -136,9 +136,8 @@ input {
 
 .throttle-control {
   display: grid;
-  gap: 6px;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -187,7 +186,7 @@ input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 46px;
+  min-height: 35px;
   padding: 0 12px;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
   color: #f6f4ee;
@@ -199,6 +198,10 @@ input {
   background: linear-gradient(135deg, #efeadf 0%, #d7cebc 100%);
   color: var(--ink);
   box-shadow: 0 10px 18px rgba(120, 108, 90, 0.14);
+}
+
+.debugger-toggle {
+  width: 100%;
 }
 
 .file-button input {
@@ -224,7 +227,7 @@ input {
 }
 
 .meta-actions button {
-  min-height: 40px;
+  min-height: 35px;
   padding: 0 12px;
   background: var(--button-meta);
   color: var(--ink);
@@ -255,6 +258,11 @@ button:disabled {
   grid-template-columns: 354px minmax(0, 1fr);
   align-items: start;
   gap: 22px;
+}
+
+.emulator-layout.debugger-hidden {
+  grid-template-columns: 354px;
+  justify-content: center;
 }
 
 .device {
@@ -509,6 +517,10 @@ button.key.nav[data-key-id='8'], button.key.nav[data-key-id='13'] {
   gap: 14px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
+}
+
+.info-panel.hidden {
+  display: none;
 }
 
 .panel-block {

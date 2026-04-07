@@ -3,6 +3,7 @@ const HEIGHT = 48;
 const SCALE = 6;
 const ROM_STORAGE_KEY = "ti80-rom";
 const BREAKPOINT_STORAGE_KEY = "ti80-breakpoints";
+const DEBUGGER_VISIBLE_STORAGE_KEY = "ti80-debugger-visible";
 const EMULATION_FRAME_MS = 1000 / 60;
 const REGISTER_ROWS = Array.from({ length: 31 }, (_, row) => row).filter((row) => row !== 15);
 
@@ -134,6 +135,7 @@ const romInput = document.getElementById("rom-input");
 const stateInput = document.getElementById("state-input");
 const screenshot = document.getElementById("screenshot");
 const screenRecordButton = document.getElementById("screen-record-button");
+const debuggerToggleButton = document.getElementById("debugger-toggle-button");
 const runToggle = document.getElementById("run-toggle");
 const stepButton = document.getElementById("step-button");
 const resetButton = document.getElementById("reset-button");
@@ -162,6 +164,8 @@ const clearBreakpointsButton = document.getElementById("clear-breakpoints-button
 const breakpointList = document.getElementById("breakpoint-list");
 const stackView = document.getElementById("stack-view");
 const registerView = document.getElementById("register-view");
+const emulatorLayout = document.querySelector(".emulator-layout");
+const infoPanel = document.querySelector(".info-panel");
 
 screen.width = WIDTH * SCALE;
 screen.height = HEIGHT * SCALE;
@@ -188,7 +192,9 @@ const state = {
   registersPtr: 0,
   stackPtr: 0,
   lastBlankLogFrame: -120,
-  frameCounter: 0
+  frameCounter: 0,
+  debuggerVisible: false,
+  debuggerBuilt: false
 };
 
 let ModuleRef = null;
@@ -558,6 +564,23 @@ function rgbString(color) {
   return `rgb(${color[0]} ${color[1]} ${color[2]})`;
 }
 
+function readDebuggerVisibilityPreference() {
+  try {
+    return window.localStorage.getItem(DEBUGGER_VISIBLE_STORAGE_KEY) === "1";
+  } catch (error) {
+    console.warn("[ti80] Failed to read debugger visibility from localStorage", error);
+    return false;
+  }
+}
+
+function saveDebuggerVisibilityPreference(visible) {
+  try {
+    window.localStorage.setItem(DEBUGGER_VISIBLE_STORAGE_KEY, visible ? "1" : "0");
+  } catch (error) {
+    console.warn("[ti80] Failed to save debugger visibility to localStorage", error);
+  }
+}
+
 function normalizeHex(value, width) {
   return value.replace(/[^0-9a-f]/gi, "").toUpperCase().slice(0, width);
 }
@@ -596,6 +619,7 @@ function getBreakpointAddresses() {
 }
 
 function buildStackEditor() {
+  if (state.debuggerBuilt) return;
   stackView.textContent = "";
   for (let index = 0; index < 8; index += 1) {
     const item = document.createElement("label");
@@ -613,6 +637,13 @@ function buildStackEditor() {
     input.autocomplete = "off";
     input.spellcheck = false;
     input.dataset.stackIndex = String(index);
+    input.addEventListener("blur", () => applyStackValue(input));
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      applyStackValue(input);
+      input.blur();
+    });
     item.appendChild(input);
 
     stackInputs.push(input);
@@ -645,6 +676,13 @@ function buildRegisterEditor() {
       input.spellcheck = false;
       input.maxLength = 1;
       input.dataset.registerIndex = String(index);
+      input.addEventListener("blur", () => applyRegisterNibble(input));
+      input.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        applyRegisterNibble(input);
+        input.blur();
+      });
       cells.appendChild(input);
       registerInputs.set(index, input);
     }
@@ -654,7 +692,15 @@ function buildRegisterEditor() {
   });
 }
 
+function ensureDebuggerBuilt() {
+  if (state.debuggerBuilt) return;
+  buildStackEditor();
+  buildRegisterEditor();
+  state.debuggerBuilt = true;
+}
+
 function renderStackEditor(disabled) {
+  if (!state.debuggerBuilt) return;
   if (!state.ready || !state.romLoaded) {
     stackInputs.forEach((input) => {
       input.disabled = true;
@@ -670,6 +716,7 @@ function renderStackEditor(disabled) {
 }
 
 function renderRegisterEditor(disabled) {
+  if (!state.debuggerBuilt) return;
   if (!state.ready || !state.romLoaded) {
     registerInputs.forEach((input) => {
       input.disabled = true;
@@ -684,6 +731,7 @@ function renderRegisterEditor(disabled) {
 }
 
 function renderBreakpointList(disabled, addresses) {
+  if (!state.debuggerVisible) return;
   const mode = !state.ready ? "not-ready" : (!state.romLoaded ? "no-rom" : "rom-loaded");
   const renderKey = `${mode}:${disabled ? 1 : 0}:${addresses.join(",")}`;
   if (renderKey === lastBreakpointListKey) return;
@@ -742,6 +790,8 @@ function renderBreakpointList(disabled, addresses) {
 }
 
 function updateDebugger() {
+  if (!state.debuggerVisible) return;
+  ensureDebuggerBuilt();
   if (!state.ready) return;
 
   if (!state.romLoaded) {
@@ -793,19 +843,36 @@ function updateDebugger() {
 
 function syncControls() {
   const canInteract = state.ready && state.romLoaded;
-  runToggle.textContent = state.running ? "Pause" : "Run";
-  runToggle.classList.toggle("is-running", state.running);
-  runToggle.classList.toggle("is-paused", !state.running);
   screenRecordButton.textContent = screenRecorder ? "Stop Recording" : "Record Video";
-  runToggle.disabled = !canInteract;
-  stepButton.disabled = !canInteract;
   resetButton.disabled = !canInteract;
   hardResetButton.disabled = !canInteract;
   powerCycleButton.disabled = !canInteract;
   saveStateButton.disabled = !canInteract;
+  screenRecordButton.disabled = (!canInteract && !screenRecorder) || !supportsScreenRecording();
+  debuggerToggleButton.textContent = state.debuggerVisible ? "Hide Debugger" : "Show Debugger";
+
+  if (!state.debuggerVisible) return;
+
+  runToggle.textContent = state.running ? "Pause" : "Run";
+  runToggle.classList.toggle("is-running", state.running);
+  runToggle.classList.toggle("is-paused", !state.running);
+  runToggle.disabled = !canInteract;
+  stepButton.disabled = !canInteract;
   stepOverButton.disabled = !canInteract;
   toggleBreakpointButton.disabled = !canInteract;
-  screenRecordButton.disabled = (!canInteract && !screenRecorder) || !supportsScreenRecording();
+}
+
+function syncDebuggerVisibility() {
+  infoPanel.classList.toggle("hidden", !state.debuggerVisible);
+  emulatorLayout.classList.toggle("debugger-hidden", !state.debuggerVisible);
+}
+
+function setDebuggerVisible(visible) {
+  state.debuggerVisible = visible;
+  saveDebuggerVisibilityPreference(visible);
+  syncDebuggerVisibility();
+  syncControls();
+  if (visible) updateDebugger();
 }
 
 function updateProgramCounter() {
@@ -1295,6 +1362,7 @@ function handleKeyboard(event, pressed) {
 }
 
 function commitFocusedDebuggerEdit() {
+  if (!state.debuggerVisible || !state.debuggerBuilt) return;
   if (!debuggerEditable()) return;
   const activeElement = document.activeElement;
   if (!(activeElement instanceof HTMLInputElement)) return;
@@ -1389,6 +1457,10 @@ function installEventHandlers() {
     updateThrottleLabel();
   });
 
+  debuggerToggleButton.addEventListener("click", () => {
+    setDebuggerVisible(!state.debuggerVisible);
+  });
+
   applyPcButton.addEventListener("click", applyProgramCounter);
   pcEditor.addEventListener("blur", applyProgramCounter);
   pcEditor.addEventListener("keydown", (event) => {
@@ -1411,26 +1483,6 @@ function installEventHandlers() {
     updateDebugger();
     setStatus("All breakpoints cleared");
     logSnapshot("All breakpoints cleared");
-  });
-
-  stackInputs.forEach((input) => {
-    input.addEventListener("blur", () => applyStackValue(input));
-    input.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      applyStackValue(input);
-      input.blur();
-    });
-  });
-
-  registerInputs.forEach((input) => {
-    input.addEventListener("blur", () => applyRegisterNibble(input));
-    input.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      applyRegisterNibble(input);
-      input.blur();
-    });
   });
 
   runToggle.addEventListener("click", () => {
@@ -1543,6 +1595,7 @@ function bootModule() {
   ModuleRef = window.Module;
   ModuleRef._emulator_init();
   state.ready = true;
+  state.debuggerVisible = readDebuggerVisibilityPreference();
   state.frameCounter = 0;
   state.lastBlankLogFrame = -120;
   resetThrottleClock();
@@ -1550,6 +1603,7 @@ function bootModule() {
   state.stateSize = ModuleRef._emulator_state_size();
   state.registersPtr = ModuleRef._emulator_registers_ptr();
   state.stackPtr = ModuleRef._emulator_stack_ptr();
+  syncDebuggerVisibility();
   syncControls();
   updateProgramCounter();
   updateDebugger();
@@ -1562,10 +1616,10 @@ function bootModule() {
 
 validateKeyLayout();
 createKeypad();
-buildStackEditor();
-buildRegisterEditor();
 installEventHandlers();
 updateThrottleLabel();
+syncDebuggerVisibility();
+syncControls();
 drawScreen();
 
 window.addEventListener("ti80-module-ready", bootModule, { once: true });
