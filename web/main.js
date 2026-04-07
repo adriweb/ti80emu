@@ -735,7 +735,7 @@ function decodeInstruction(pc) {
     mnemonic = "LOAD";
     asmTokens = instructionTokens({ mnemonic, operands: `${formatRegAddress(i)},${formatImmediate(op)}` });
   } else if (op < 0x1000) {
-    if ((op & 0x0f00) === 0x0f00) {
+    if ((op & 0x0ff0) === 0x0f00) {
       mnemonic = "REP";
       asmTokens = instructionTokens({ mnemonic, operands: hex((op & 0x000f) + 1, 1) });
     } else {
@@ -1480,8 +1480,9 @@ function updateDebugger() {
   const opcodeBytes = [];
   const editable = debuggerEditable();
   const breakpoints = getBreakpointAddresses();
+  const opcodeByteBase = (pc << 1) & 0xffff;
 
-  for (let i = 0; i < 8; i += 1) opcodeBytes.push(hex(ModuleRef._emulator_debug_byte((pc + i) & 0xffff), 2));
+  for (let i = 0; i < 8; i += 1) opcodeBytes.push(hex(debugByteAt(opcodeByteBase + i), 2));
 
   syncInputValue(regAEditor, hex(reg8At(0x0ff), 2), !editable);
   syncInputValue(regIEditor, `${hex(reg4At(0x102), 1)}${hex(reg8At(0x100), 2)}`, !editable);
