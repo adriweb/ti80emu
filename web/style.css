@@ -322,7 +322,7 @@ button:disabled {
 
 .screen-stack {
   margin: 0 6px;
-  padding: 8px 41px;
+  padding: 7px 36px;
   border-radius: 3px;
   background:
     linear-gradient(180deg, #dbd5c6 0%, #cfc7b7 22%, #bbae99 100%);
@@ -349,7 +349,7 @@ button:disabled {
   width: 100%;
   max-width: 100%;
   aspect-ratio: 4 / 3;
-  padding: 13px 17px;
+  padding: 7px 10.2px;
   border-radius: 2px;
   background: #d4cab9;
   image-rendering: pixelated;
